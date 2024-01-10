@@ -1,11 +1,6 @@
 GTM DataLayer Requirements  
 
 
-Introduction to the dataLayer
- 
-
-The dataLayer works in connection with Google Tag Manager to provide additional information that can trigger tags, or add information to them.
-
 There are two ways of instantiating the dataLayer: (i) by placing it in the <head> section, above the main GTM script and (ii) by instrumenting dataLayer pushes.
 
 The basic syntax of the dataLayer is as follows:

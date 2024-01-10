@@ -1,9 +1,3 @@
-GTM DataLayer Requirements  
-
-
-There are two ways of instantiating the dataLayer: (i) by placing it in the <head> section, above the main GTM script and (ii) by instrumenting dataLayer pushes.
-
-The basic syntax of the dataLayer is as follows:
 
 <script>
 window.dataLayer = window.dataLayer || [];

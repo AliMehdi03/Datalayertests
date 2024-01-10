@@ -1,0 +1,639 @@
+GTM DataLayer Requirements  
+
+
+Introduction to the dataLayer
+ 
+
+The dataLayer works in connection with Google Tag Manager to provide additional information that can trigger tags, or add information to them.
+
+There are two ways of instantiating the dataLayer: (i) by placing it in the <head> section, above the main GTM script and (ii) by instrumenting dataLayer pushes.
+
+The basic syntax of the dataLayer is as follows:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'someVar' : 'someVal',
+  'event' : 'someValue'
+});
+</script>
+
+This document will outline the points at which the dataLayer is required and what it must contain. See Google Tag Manager developer guide for further information on the dataLayer.
+
+
+01 - Global variables
+ 
+
+●	Description: Global variable requirements for every page.
+●	Page: Site-wide.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+dataLayer.push({
+'login_status' : '<<login status>>',
+'user_type' : '<<user type>>',
+'customer_id' : '<<customer id>>',//user_id will be passed in GA config tag
+'hashed_email_address' : '<<hashed email address>>', // will not be passed to GA
+'email_address' : '<<email address>>', // Will not be passed to GA
+'has_purchased' : '<<customer has purchased>>', 
+'page_category' : '<<page category>>',
+'site_language' : '<<site language>>',
+'site_country' : '<<site country>>',
+'site_environment' : '<<site environment>>',
+    	// Variables specific for category pages.
+    	'category_name': '<<category name>>',
+    	'category_id': '<<category id>>',
+    	'sub_category_name': '<<subcategory name>>',
+    	'sub_category_id': '<<subcategory id>>'
+});
+</script>
+
+IMPORTANT: The above dataLayer push must be placed and instantiated before the GTM script in the codebase. Once the GTM script is rendered, all global variables must be available to be used.
+
+IMPORTANT: The above dataLayer push must be instantiated every time there is a page load on site. Therefore, in the event the site has instances of a dynamic page load i.e. SPA, this dataLayer push is to be instantiated accordingly. In sum, on both traditional load and dynamic load the global variables dataLayer push is to be called and updated.
+
+IMPORTANT: Replace <<login status>> with one of Logged In or Logged Out.
+
+IMPORTANT: Replace <<user type>> with one of Customer or Guest.
+
+IMPORTANT: Replace <<customer id>> with the unique user/login ID assigned to the user upon registration. If an ID doesn’t exist, please leave customer_id blank.
+
+IMPORTANT: Replace <<hashed email address>> with the hashed email address of the customer. If an email address doesn’t exist, set email_address as undefined. Note: value must be passed in a SHA256 hashed format.
+
+IMPORTANT: Replace <<email address>> with the email address of the customer. If an email address doesn’t exist, set email_address as undefined. 
+
+IMPORTANT: Replace <<customer has purchased>> with one of Yes or No. This variable is associated with a customer and denotes whether the customer has purchased in the past. If value doesn’t exist, set has_purchased as undefined.
+
+IMPORTANT: Replace <<page category>> with the page category or section e.g. Homepage.
+
+IMPORTANT: Replace <<site language>> with the site language e.g. en-gb.
+
+IMPORTANT: Replace <<site country>> with the site country initials e.g. UK.
+
+IMPORTANT: Replace <<site environment>> with the site environment e.g. Production.
+
+
+IMPORTANT: Replace <<category name>> with the category name e.g. Tripods. Note: variable is to be instantiated on category pages only.
+
+IMPORTANT: Replace <<category id>> with the unique category ID. Note: variable is to be instantiated on category pages only.
+
+IMPORTANT: Replace <<subcategory name>> with the subcategory name e.g. Traveler. If not applicable, set sub_category_name as undefined. Note: variable is to be instantiated on category pages only. 
+
+IMPORTANT: Replace <<subcategory id>> with the unique subcategory ID. If not applicable, set sub_category_id as undefined. Note: variable is to be instantiated on category pages only. 
+
+The remaining code requirements below are dataLayer pushes in addition to the one above.
+
+
+2.1 - Registration attempt
+ 
+
+●	Description: When a user clicks on the Create Account link. 
+●	Page: Registration Page.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Attempt',
+  },
+  _clear: true,
+  'event' : 'registration'
+});
+</script>
+
+
+
+
+2.2 - Registration fail
+ 
+
+●	Description: When a user fails to register due to one or more form fields not passing form validation check. 
+●	Page: Registration Page.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Fail',
+    'form_field' : '<<form field>>'
+  },
+  _clear: true,
+  'event' : 'registration'
+});
+</script>
+
+IMPORTANT: Replace <<form field>> with the name of the form field that generated the error e.g. Email. In the event of multiple values, pass them separated by semicolons e.g. Email Confirmation; Password; Password Confirmation.
+
+
+ 
+2.3 - Registration success
+ 
+
+●	Description: When a user successfully registers i.e. on registration success. 
+●	Page: Registration Page.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Success'
+  },
+  _clear: true,
+  'event' : 'registration'
+});
+</script>
+
+
+Screenshot:
+
+
+
+
+
+3.1 - Login attempt
+ 
+
+●	Description: When a user clicks on the Login link. 
+●	Page: Login-page.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Attempt'
+  },
+  _clear: true,
+  'event' : 'login_attempt'
+});
+</script>
+
+
+
+
+
+
+3.2 - Login fail
+ 
+
+●	Description: When a user fails to log in due to one or more form fields not passing form validation check. 
+●	Page: Login-page.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Fail',
+    'form_field' : '<<form field>>'
+  },
+  _clear: true,
+  'event' : 'login_fail'
+});
+</script>
+
+IMPORTANT: Replace <<form field>> with the name of the form field that generated the error e.g. Email Address. In the event of multiple values, pass them separated by semicolons e.g. Email Address; Password.
+
+
+
+3.3 - Login success
+ 
+
+●	Description: When a user successfully logs in i.e. on login success. 
+●	Page: Login-page.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Success',
+  },
+  _clear: true,
+  'event' : 'login'
+});
+</script>
+
+
+
+4.1 - Newsletter attempt
+ 
+
+●	Description: When a user attempts to subscribe to the newsletter i.e. on clicks on the Subscribe Now/Subscribe button. Note this is associated with the overlay and header only - see two screenshots for reference. 
+●	Page: Site-wide (general / ad-hoc event  nl subscription pages).
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Attempt'
+  },
+  _clear: true,
+  'event' : 'newsletter'
+});
+</script>
+
+
+4.2 - Newsletter fail
+ 
+
+●	Description: When a user fails to register due to one or more form fields not passing form validation check.
+●	Page: Page: Site-wide (general / ad-hoc event  nl subscription pages).
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Fail',
+    'form_field' : '<<form field>>'
+  },
+  _clear: true,
+  'event' : 'newsletter'
+});
+</script>
+
+IMPORTANT: Replace <<form field>> with the name of the form field that generated the error e.g. Email Address.
+
+
+4.3 - Newsletter success
+ 
+
+●	Description: When a user successfully subscribes i.e. on subscription success onsite and pop-up. Page: Site-wide (general / ad-hoc event  nl subscription pages).
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'status' : 'Submit Success'
+  },
+  _clear: true,
+  'event' : 'newsletter'
+});
+</script>
+
+
+5.1 - Pop up impressions
+ 
+
+●	Description: The number of times a pop - up appears for site subscription page (pop - up  which redirects user to the site subscription page)
+●	Page: Site-wide.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+    _clear: true, 
+  'event' : 'pop_up_impression'
+});
+</script>
+
+IMPORTANT: Replace <<no of impressions>> with the number of times pop up appeared on 
+user’s screen.  Note: Value must be of data type number.
+
+5.2 - Pop up interaction
+ 
+
+●	Description: The button that user clicks when displayed pop up for on site subscription page i.e submit or close button
+●	Page: Site-wide.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'name' : '<<cta name>>'
+  },
+  _clear: true,
+  'event' : 'pop_up_interaction'
+});
+</script>
+IMPORTANT: Replace <<cta name>> with the text of CTA clicked on the pop up i.e submit or cancel
+
+6.1 - Where to buy impressions
+ 
+
+●	Description: The number of times the retailer/vendor appears on the PDP page when the user lands on the PDP page.
+●	Page: PDP.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'custom_product_name' : '<product name>>',
+    'custom_product_id' : '<<product id>>',
+    'custom_product_price' : <<product price>>, 
+    'retailer' : '<<product name>>'
+  },
+  _clear: true,
+  'event' : 'retailer_impression'
+});
+</script>
+
+IMPORTANT: Replace <<product name>> with the product name e.g. Gitzo Légende Bundle - Tripod & Backpack.
+
+IMPORTANT: Replace <<product id>> with the unique ID of the product.
+
+IMPORTANT: Replace <<product price>> with the product price. Note: value must be of data type number.
+
+IMPORTANT: Replace <<retailer name>> with the name of the retailer providing the product i.e B&H.
+
+
+6.2 Where to buy interactions
+
+●	Description: the number of times the visitor clicks on the retailer when on the PDP page 
+●	Page: PDP.
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'name' : '<<cta name>>',
+    'custom_product_name' : '<<product name>>',
+    'custom_product_id' : '<<product id>>',
+    'custom_product_price' : <<product price>>, 
+    'retailer' : '<<retailer name>>'
+
+  },
+  _clear: true,
+  'event' : 'retailer_interaction'
+});
+</script>
+
+IMPORTANT: Replace <<cta name>> with the text of CTA clicked i.e Buy now.
+
+IMPORTANT: Replace <<product name>> with the product name e.g. Gitzo Légende Bundle - Tripod & Backpack.
+
+IMPORTANT: Replace <<product id>> with the unique ID of the product.
+
+IMPORTANT: Replace <<product price>> with the product price. Note: value must be of data type number.
+
+IMPORTANT: Replace <<retailer name>> with the name of the retailer providing the product i.e B&H.
+
+7 - Filter
+ 
+
+●	Description: When a user selects a filter. 
+●	Page: PLP. 
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'filter': '<<filter name>>',
+    'name': '<<filter value/CTA>>'
+  },
+  _clear: true,
+  'event' : 'filter'
+});
+</script>
+
+IMPORTANT: Replace <<filter name>> with the name of the filter e.g.  category. 
+
+IMPORTANT: Replace <<filter value>> with the filter value selected e.g. mini tripods.
+
+
+
+
+8 - Sort by
+ 
+
+●	Description: When a user selects a sort by value either on the category page or on the search results page. 
+●	Page: PLP. 
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : { 
+    'sort_value'  : '<<sort by value>>'
+  },
+  _clear: true,
+  'event' : 'sort'
+});
+</script>
+
+IMPORTANT: Replace <<sort by value>> with the sort by value selected e.g. Price, high to low.
+
+
+9 - Basket Builder 
+ 
+
+●	Description:  When a user views his/her cart a pop up appears with additional discounted or free item that he/she can add to the cart
+●	Page: Cart / Checkout . 
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'name': '<<cta name>>',
+    'custom_product_name' : '<<product name>>',
+    'custom_product_id' : '<<product id>>',
+    'custom_product_price' : <<product price>> 
+  },
+  _clear: true,
+  'event' : 'basket_builder'
+});
+</script>
+
+IMPORTANT: Replace <<cta name>> with the text of CTA clicked on the pop up i.e add to cart or cancel
+
+IMPORTANT: Replace <<product name>> with the product name e.g. Gitzo Légende Bundle - Tripod & Backpack.
+
+IMPORTANT: Replace <<product id>> with the unique ID of the product.
+
+IMPORTANT: Replace <<product price>> with the product price. Note: value must be of data type number.
+
+
+
+10 - Back in stock 
+ 
+
+●	Description: when a user clicks on back in stock button/link when viewing a product that is not in stock
+●	Page: PDP 
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'custom_product_name' : '<<product name>>',
+    'custom_product_id' : '<<product id>>',
+    'custom_product_price' : <<product price>> 
+  },
+  _clear: true,
+  'event' : 'back_in_stock'
+});
+</script>
+
+IMPORTANT: Replace <<product name>> with the product name e.g. Gitzo Légende Bundle - Tripod & Backpack.
+
+IMPORTANT: Replace <<product id>> with the unique ID of the product.
+
+IMPORTANT: Replace <<product price>> with the product price. Note: value must be of data type number.
+
+
+
+
+11 - Main navigation
+ 
+
+●	Description: When a user interacts with the main navigation items/CTAs. This includes all CTAs in the header (e.g. Search, Country etc.) and all CTAs within any given category (e.g. CTAs within the Treatments category).
+●	Page: Site-wide. 
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'section' : '<<section>>',
+    'name' : '<<cta name>>',
+    'id': '<<cta id>>',
+    'referring_page' : '<<referring page>>',
+    'destination_page' : '<<destination page>>'
+  },
+  _clear: true,
+  'event' : 'navigation'
+});
+</script>
+
+                
+
+IMPORTANT: Replace <<section>> with one of Header - <<column name>> (CTAs under the five columns at the top, where <<column name>> is one of Tripods, head or camera bags etc…
+ 
+IMPORTANT: Replace <<cta name>> with the text of the clicked CTA e.g. Tripod.
+
+IMPORTANT: Replace <<cta id>> with the CTA ID if one exists. The ID is to be used to consolidate any given CTA name across markets/sites where the CTA name is in the local language.
+
+IMPORTANT: Replace <<referring page>> with the page path of the page on which the click occurred e.g. /uk-en/tripods/. If the click is on a CTA that doesn’t redirect the user to another page (e.g. clicks on Search), then set referring_page as undefined.
+
+IMPORTANT: Replace <<destination page>> with the page path of the page to which the user is sent e.g. uk-en/tripods/traveler/ . If the click is on a CTA that doesn’t redirect the user to another page (e.g. clicks on Search), then set destination_page as undefined.
+
+
+
+
+12 - Footer
+ 
+
+●	Description: When a user interacts with the footer items/CTAs.
+●	Page: Site-wide. 
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'section' : '<<section>>',
+    'name' : '<<cta name>>',
+    'id': '<<cta id>>',
+    'referring_page' : '<<referring page>>',
+    'destination_page' : '<<destination page>>'
+  },
+  _clear: true,
+  'event' : 'navigation'
+});
+</script>
+
+IMPORTANT: Replace <<section>> with one of Footer - <<column name>> (CTAs under the five columns, where <<column name>> is one of products, my account and support etc… or Footer - Social Media (social media CTAs to the left).
+
+IMPORTANT: Replace <<cta name>> with the text of the clicked CTA e.g. Tripods.
+
+IMPORTANT: Replace <<cta id>> with the CTA ID if one exists. The ID is to be used to consolidate any given CTA name across markets/sites where the CTA name is in the local language.
+
+IMPORTANT: Replace <<referring page>> with the page path of the page on which the click occurred e.g. /uk-en/tripods/.
+
+IMPORTANT: Replace <<destination page>> with the page path of the page to which the user is sent e.g. uk-en/tripods/traveler/.
+
+13 - Country switch
+ 
+
+●	Description: When a user switches country.
+●	Page: Site-wide. 
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'from_country' : '<<from country>>',
+    'to_country': '<<to country>>'
+  },
+  _clear: true,
+  'event' : 'country_switch'
+});
+</script>
+
+IMPORTANT: Replace <<from country>> with the root domain of the country the user is switching from e.g. /uk-en
+
+IMPORTANT:  Replace <<to country>> with the root domain of the country the user is switching to e.g. /fr-fr
+
+
+
+
+14 - Onsite search
+ 
+
+●	Description: When a user performs an onsite search either by selecting a suggested term or by typing a term and hitting enter.
+●	Page: Site-wide. 
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'type': '<<search type>>',
+    'search_term': '<<search term>>',
+    'result_count': <<result count>>
+  },
+  _clear: true,
+  'event' : 'search'
+});
+</script>
+
+
+Replace <<search type>> with one of Suggested (user selected a term suggested by the search engine) or Manual (user typed a term and hit Enter/clicked on the search icon).
+
+Replace <<search term>> with the search term e.g. Tripod.
+
+Replace <<result count>> with the number of search results e.g. 10. Note: Value must be of data type number.
+
+
+15 - 404 Pageview
+ 
+
+●	Description: Any pageview where the error message is a 404
+●	Page: 404 Pages
+●	Required dataLayer code:
+
+<script>
+window.dataLayer = window.dataLayer || [];
+window.dataLayer.push({
+  'data' : {
+    'referring_page' : '<<referring page>>',
+    'destination_page' : '<<destination page>>'
+  },
+  _clear: true,
+  'event' : '404_pageview'
+});
+</script>
+
+
+
+IMPORTANT: Replace <<referring page>> with the page path of the page on which the click occurred e.g. /uk-en/tripods/
+
+IMPORTANT: Replace <<destination page>> with the page path of the page to which the user is expected to land on sent e.
+
+
+
+
+
